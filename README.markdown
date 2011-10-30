@@ -7,24 +7,24 @@ twitter api wapper like a Rubytter.rb
 how to use
 ----------
 
-# oauth - get access token
+### oauth - get access token
 
     let ctx = twibill#access_token()
     echo ctx.access_token        "=> your access token
     echo ctx.access_token_secret "=> your access token secret
 
-# get twibill instance
+### get twibill instance
 
     let twibill = twibill#new({'access_token' : s:access_token, 'access_token_secret' : s:access_token_secret})
 
-# get statuses
+### get statuses
 
     let xml = twibill.list_statuses('basyura', 'vim')
     for tweet in xml.childNodes('status')
       echo tweet.childNode('user').childNode('screen_name').value() . ' : ' . tweet.childNode('text').value()
     endfor
 
-# update status
+### update status
 
     call twibill.update('hello vim world')
 
