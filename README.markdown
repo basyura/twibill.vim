@@ -16,6 +16,9 @@ how to use
 ### oauth - get access token
 
     let ctx = twibill#access_token()
+    "
+    " open your browser to authenticate , and inpupt pin
+    "
     echo ctx.access_token        "=> your access token
     echo ctx.access_token_secret "=> your access token secret
 
