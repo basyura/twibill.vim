@@ -76,19 +76,30 @@ let s:twibill = {}
 function! s:setup()
   for line in s:apis
     let info = split(line, '\s\+')
-    let s:twibill[info[0] . '_config'] = info
-    function! s:twibill[info[0]](...)
+
+    let api_config = {
+          \ 'method'      : info[0], 
+          \ 'url'         : info[1], 
+          \ 'http_method' : len(info) == 2 ? 'get' : info[2]
+          \ }
+
+    let s:twibill[api_config.method . '_config'] = api_config
+
+    function! s:twibill[api_config.method](...)
       let func_name = "function('" . split(expand('<sfile>'),)[1] . "')"
-      let api = ""
-      for key in keys(self)
-        if string(self[key]) == func_name
-          let api = key
-          break
-        endif
-      endfor
+      let api = get(self, func_name, "")
+      if api == ""
+        for key in keys(self)
+          if string(self[key]) == func_name
+            let api = key
+            let self[func_name] = api
+            break
+          endif
+        endfor
+      endif
 
       let api_config = self[api . '_config']
-      let url = s:api_url . api_config[1] . '.xml'
+      let url = s:api_url . api_config.url . '.xml'
 
       let num = len(split(url, '%s', 1)) - 1
       for v in range(num) 
