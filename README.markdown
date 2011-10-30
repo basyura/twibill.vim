@@ -4,6 +4,12 @@ twibill.vim
 
 twitter api wapper like a Rubytter.rb
 
+dependencies
+------------
+
+  - webapi-vim (https://github.com/mattn/webapi-vim)
+  - open-browser.vim (https://github.com/tyru/open-browser.vim)
+
 how to use
 ----------
 
