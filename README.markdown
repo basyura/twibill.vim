@@ -28,14 +28,40 @@ how to use
       \ 'access_token' : your access token, 
       \ 'access_token_secret' : your access token secret })
 
-### get home timeline
+### home timeline
 
     let xml = twibill.home_timeline()
     for status in xml.childNodes('status')
       echo status.find('screen_name').value() . ' : ' . status.find('text').value()
     endfor
 
-### get list statuses
+### mentions
+
+    let xml = twibill.mentions()
+    for status in xml.childNodes('status')
+      echo status.find('screen_name').value() . ' : ' . status.find('text').value()
+    endfor
+
+### user timeline
+
+    let xml = twibill.user_timeline('basyura')
+    for status in xml.childNodes('status')
+      echo status.find('screen_name').value() . ' : ' . status.find('text').value()
+    endfor
+
+### friends
+
+    let xml = twibill.friends('basyura')
+    for v in xml.findAll('screen_name')
+      echo v.value()
+    endfor
+
+### show
+
+    let status = twibill.show('130596703198916610')
+    echo status.find('screen_name').value() . ' : ' . status.find('text').value()
+
+### list statuses
 
     let xml = twibill.list_statuses('basyura', 'vim')
     for status in xml.childNodes('status')
@@ -46,7 +72,11 @@ how to use
 
     call twibill.update('hello vim world')
 
-### get lists
+### remove status
+
+    call twibill.remove_status('130580534530293761')
+
+### lists
 
     let xml = twibill.lists('basyura')
     for n in xml.findAll('full_name')
@@ -56,19 +86,31 @@ how to use
       echo n.value() "=> list_name
     endfor
 
-### get list members
+### list members
 
     let xml = twibill.list_members('basyura', 'vim')
     for name in xml.findAll('screen_name')
       echo name.value()
     endfor
 
-### get favorites
+### favorites
 
     let xml = twibill.favorites('basyura')
     for status in xml.childNodes('status')
       echo status.find('screen_name').value() . ' : ' . status.find('text').value()
     endfor
+
+### favorite
+
+    call twibill.favorite('130596703198916610')
+
+### remove favorite
+
+    call twibill.remove_favorite('130596703198916610')
+
+### retweet
+
+    call twibill.retweet('130597082212995072')
 
 supported api ?
 ---------------
