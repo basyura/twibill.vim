@@ -24,13 +24,16 @@ how to use
 
 ### get twibill instance
 
-    let twibill = twibill#new({'access_token' : s:access_token, 'access_token_secret' : s:access_token_secret})
+    let twibill = twibill#new({
+      \ 'access_token' : your access token, 
+      \ 'access_token_secret' : your access token secret })
 
 ### get statuses
 
     let xml = twibill.list_statuses('basyura', 'vim')
     for tweet in xml.childNodes('status')
-      echo tweet.childNode('user').childNode('screen_name').value() . ' : ' . tweet.childNode('text').value()
+      echo tweet.childNode('user').childNode('screen_name').value()
+             \  . ' : ' . tweet.childNode('text').value()
     endfor
 
 ### update status
