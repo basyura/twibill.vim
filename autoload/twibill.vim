@@ -73,6 +73,10 @@ let s:apis = [
 
 let s:twibill = {}
 
+function! s:twibill.update(text)
+  return self.update_status({"status" : a:text})
+endfunction
+
 function! s:setup()
   for line in s:apis
     let info = split(line, '\s\+')
@@ -86,7 +90,13 @@ function! s:setup()
     let s:twibill[api_config.method . '_config'] = api_config
 
     function! s:twibill[api_config.method](...)
-      let func_name = "function('" . split(expand('<sfile>'),)[1] . "')"
+
+      " to get method name by func name ...
+      let func_name = split(expand('<sfile>'))[-1]
+      if func_name =~ '\.\.'
+        let func_name = split(func_name, '\.\.')[-1]
+      endif
+      let func_name = "function('" . func_name . "')"
       let api = get(self, func_name, "")
       if api == ""
         for key in keys(self)
@@ -113,7 +123,11 @@ function! s:setup()
             \ 'access_token'        : self.config.access_token ,
             \ 'access_token_secret' : self.config.access_token_secret
             \ }
-      let res = oauth#get(url, ctx, param)
+      if api_config.http_method == 'get'
+        let res = oauth#get(url, ctx, param)
+      else
+        let res = oauth#post(url, ctx, {}, param)
+      endif
       let xml = xml#parse(res.content)
       return xml
     endfunction
