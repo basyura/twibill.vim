@@ -28,17 +28,47 @@ how to use
       \ 'access_token' : your access token, 
       \ 'access_token_secret' : your access token secret })
 
-### get statuses
+### get home timeline
+
+    let xml = twibill.home_timeline()
+    for status in xml.childNodes('status')
+      echo status.find('screen_name').value() . ' : ' . status.find('text').value()
+    endfor
+
+### get list statuses
 
     let xml = twibill.list_statuses('basyura', 'vim')
-    for tweet in xml.childNodes('status')
-      echo tweet.childNode('user').childNode('screen_name').value()
-             \  . ' : ' . tweet.childNode('text').value()
+    for status in xml.childNodes('status')
+      echo status.find('screen_name').value() . ' : ' . status.find('text').value()
     endfor
 
 ### update status
 
     call twibill.update('hello vim world')
+
+### get lists
+
+    let xml = twibill.lists('basyura')
+    for n in xml.findAll('full_name')
+      echo n.value() "=> @basyura/list_name
+    endfor
+    for n in xml.findAll('name')
+      echo n.value() "=> list_name
+    endfor
+
+### get list members
+
+    let xml = twibill.list_members('basyura', 'vim')
+    for name in xml.findAll('screen_name')
+      echo name.value()
+    endfor
+
+### get favorites
+
+    let xml = twibill.favorites('basyura')
+    for status in xml.childNodes('status')
+      echo status.find('screen_name').value() . ' : ' . status.find('text').value()
+    endfor
 
 supported api ?
 ---------------
