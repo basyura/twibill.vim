@@ -73,27 +73,43 @@ let s:apis = [
 
 let s:twibill = {}
 
-for line in s:apis
-  let info = split(line, ' ')
-  function! s:twibill[info[0]](...)
-    let url = s:api_url . info[1] . '.xml'
-    " fixme!
-    let num = len(split(url, '%s', 1)) - 1
-    for v in range(num) 
-      let url = substitute(url, "%s", a:000[v] , "")
-    endfor
-    let param = (len(a:000) != 0 && type(a:000[-1]) == 4) ? a:000[-1] : {}
-    let ctx = {
-          \ 'consumer_key'        : self.config.consumer_key ,
-          \ 'consumer_secret'     : self.config.consumer_secret ,
-          \ 'access_token'        : self.config.access_token ,
-          \ 'access_token_secret' : self.config.access_token_secret
-          \ }
-    let res = oauth#get(url, ctx, param)
-    let xml = xml#parse(res.content)
-    return xml
-  endfunction
-endfor
+function! s:setup()
+  for line in s:apis
+    let info = split(line, '\s\+')
+    let s:twibill[info[0] . '_config'] = info
+    function! s:twibill[info[0]](...)
+      let func_name = "function('" . split(expand('<sfile>'),)[1] . "')"
+      let api = ""
+      for key in keys(self)
+        if string(self[key]) == func_name
+          let api = key
+          break
+        endif
+      endfor
+
+      let api_config = self[api . '_config']
+      let url = s:api_url . api_config[1] . '.xml'
+
+      let num = len(split(url, '%s', 1)) - 1
+      for v in range(num) 
+        let url = substitute(url, "%s", a:000[v] , "")
+      endfor
+
+      let param = (len(a:000) != 0 && type(a:000[-1]) == 4) ? a:000[-1] : {}
+      let ctx = {
+            \ 'consumer_key'        : self.config.consumer_key ,
+            \ 'consumer_secret'     : self.config.consumer_secret ,
+            \ 'access_token'        : self.config.access_token ,
+            \ 'access_token_secret' : self.config.access_token_secret
+            \ }
+      let res = oauth#get(url, ctx, param)
+      let xml = xml#parse(res.content)
+      return xml
+    endfunction
+  endfor
+endfunction
+
+call s:setup()
 
 function! twibill#access_token()
 
