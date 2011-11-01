@@ -136,11 +136,19 @@ endfunction
 
 call s:setup()
 
-function! twibill#access_token()
+"
+" config : {
+"   'consumer_key'    = 'your consumer_key'
+"   'consumer_secret' = 'your consumer_secret'
+" }
+"
+function! twibill#access_token(...)
 
-  let ctx = oauth#request_token(
-        \ s:request_token_url, 
-        \ {'consumer_key' : s:consumer_key , 'consumer_secret' : s:consumer_secret})
+  let config = a:0 ? a:1 : {}
+  let config.consumer_key    = get(config, 'consumer_key'   , s:consumer_key)
+  let config.consumer_secret = get(config, 'consumer_secret', s:consumer_secret)
+
+  let ctx = oauth#request_token(s:request_token_url, config)
 
   execute "OpenBrowser " . s:authorize_url . "?oauth_token=" . ctx.request_token
   
