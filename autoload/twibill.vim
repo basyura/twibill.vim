@@ -124,7 +124,7 @@ function! s:setup()
             \ 'access_token_secret' : self.config.access_token_secret
             \ }
       if api_config.http_method == 'get'
-        let res = oauth#get(url, ctx, param)
+        let res = oauth#get(url, ctx, {}, param)
       else
         let res = oauth#post(url, ctx, {}, param)
       endif
