@@ -30,23 +30,23 @@ how to use
 
 ### home timeline
 
-    let xml = twibill.home_timeline()
-    for status in xml.childNodes('status')
-      echo status.find('screen_name').value() . ' : ' . status.find('text').value()
+    let tweets = twibill.home_timeline()
+    for t in tweets
+      echo t.user.screen_name . ' : ' . t.text
     endfor
 
 ### mentions
 
-    let xml = twibill.mentions()
-    for status in xml.childNodes('status')
-      echo status.find('screen_name').value() . ' : ' . status.find('text').value()
+    let tweets = twibill.mentions()
+    for t in tweets
+      echo t.user.screen_name . ' : ' . t.text
     endfor
 
 ### user timeline
 
-    let xml = twibill.user_timeline('basyura')
-    for status in xml.childNodes('status')
-      echo status.find('screen_name').value() . ' : ' . status.find('text').value()
+    let tweets = twibill.mentions()
+    for t in tweets
+      echo t.user.screen_name . ' : ' . t.text
     endfor
 
 ### friends
@@ -88,16 +88,16 @@ how to use
 
 ### list members
 
-    let xml = twibill.list_members('basyura', 'vim')
-    for name in xml.findAll('screen_name')
-      echo name.value()
+    let users = twibill.list_members('basyura', 'vim').users
+    for u in users
+      echo u.screen_name
     endfor
 
 ### favorites
 
-    let xml = twibill.favorites('basyura')
-    for status in xml.childNodes('status')
-      echo status.find('screen_name').value() . ' : ' . status.find('text').value()
+    let favorites = twibill.favorites('basyura')
+    for f in favorites
+      echo f.user.screen_name . ' : ' . f.text
     endfor
 
 ### favorite
