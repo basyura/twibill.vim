@@ -109,7 +109,7 @@ function! s:setup()
       endif
 
       let api_config = self[api . '_config']
-      let url = s:api_url . api_config.url . '.xml'
+      let url = s:api_url . api_config.url . '.json'
 
       let num = len(split(url, '%s', 1)) - 1
       for v in range(num) 
@@ -128,8 +128,7 @@ function! s:setup()
       else
         let res = oauth#post(url, ctx, {}, param)
       endif
-      let xml = xml#parse(res.content)
-      return xml
+      return json#decode(res.content)
     endfunction
   endfor
 endfunction
