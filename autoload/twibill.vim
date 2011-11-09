@@ -117,6 +117,9 @@ function! s:setup()
       endfor
 
       let param = (len(a:000) != 0 && type(a:000[-1]) == 4) ? a:000[-1] : {}
+      if self.config.cache && has_key(self, 'cache_since_id_' . url)
+        let param.since_id = self['cache_since_id_' . url]
+      endif
       let ctx = {
             \ 'consumer_key'        : self.config.consumer_key ,
             \ 'consumer_secret'     : self.config.consumer_secret ,
@@ -128,7 +131,19 @@ function! s:setup()
       else
         let res = oauth#post(url, ctx, {}, param)
       endif
-      return json#decode(res.content)
+      let json = json#decode(res.content)
+      if self.config.cache && type(json) == 3
+        let cache = json + get(self, 'cache_tweets_' . url, []) 
+        if empty(json)
+          return [[],cache]
+        else
+          let self['cache_since_id_' . url] = json[0].id_str
+          let self['cache_tweets_'   . url] = cache
+          return [cache[:len(json) - 1],cache[len(json):]]
+        endif
+      else
+        return json
+      endif
     endfunction
   endfor
 endfunction
@@ -170,6 +185,7 @@ function! twibill#new(config)
   let config = copy(a:config)
   let config.consumer_key    = get(a:config, 'consumer_key'   , s:consumer_key)
   let config.consumer_secret = get(a:config, 'consumer_secret', s:consumer_secret)
+  let config.cache           = get(a:config, 'cache'          , 0)
   let twibill.config = config
 
   return twibill
