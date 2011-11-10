@@ -51,9 +51,9 @@ how to use
 
 ### friends
 
-    let xml = twibill.friends('basyura')
-    for v in xml.findAll('screen_name')
-      echo v.value()
+    let friends = twibill.friends('basyura')
+    for v in friends
+      echo v.screen_name
     endfor
 
 ### show
@@ -63,9 +63,9 @@ how to use
 
 ### list statuses
 
-    let xml = twibill.list_statuses('basyura', 'vim')
-    for status in xml.childNodes('status')
-      echo status.find('screen_name').value() . ' : ' . status.find('text').value()
+    let tweets = twibill.list_statuses('basyura', 'vim')
+    for t in tweets
+      echo t.user.screen_name . ' : ' . t.text
     endfor
 
 ### update status
@@ -78,12 +78,11 @@ how to use
 
 ### lists
 
-    let xml = twibill.lists('basyura')
-    for n in xml.findAll('full_name')
-      echo n.value() "=> @basyura/list_name
+    for list in twibill.lists('basyura').lists
+      echo list.full_name "=> @basyura/list_name
     endfor
-    for n in xml.findAll('name')
-      echo n.value() "=> list_name
+    for list in twibill.lists('basyura').lists
+      echo list.full_name "=> list_name
     endfor
 
 ### list members
