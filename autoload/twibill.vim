@@ -83,8 +83,12 @@ function! s:twibill.post(url, ctx, param)
   return json#decode(res.content)
 endfunction
 
-function! s:twibill.update(text)
-  return self.update_status({"status" : a:text})
+function! s:twibill.update(text, ...)
+  let param = {"status" : a:text}
+  if a:0 && type(a:1) == 4
+    call extend(param, a:1)
+  endif
+  return self.update_status(param)
 endfunction
 
 function! s:setup()
