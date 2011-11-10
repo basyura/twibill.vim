@@ -73,6 +73,16 @@ let s:apis = [
 
 let s:twibill = {}
 
+function! s:twibill.get(url, ctx, param)
+  let res = oauth#get(a:url, a:ctx, {}, a:param)
+  return json#decode(res.content)
+endfunction
+
+function! s:twibill.post(url, ctx, param)
+  let res = oauth#post(a:url, a:ctx, {}, a:param)
+  return json#decode(res.content)
+endfunction
+
 function! s:twibill.update(text)
   return self.update_status({"status" : a:text})
 endfunction
@@ -124,11 +134,10 @@ function! s:setup()
             \ 'access_token_secret' : self.config.access_token_secret
             \ }
       if api_config.http_method == 'get'
-        let res = oauth#get(url, ctx, {}, param)
+        return self.get(url, ctx, param)
       else
-        let res = oauth#post(url, ctx, {}, param)
+        return self.post(url, ctx, param)
       endif
-      return json#decode(res.content)
     endfunction
   endfor
 endfunction
