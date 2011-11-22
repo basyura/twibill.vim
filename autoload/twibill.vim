@@ -5,6 +5,7 @@ let s:request_token_url = 'https://twitter.com/oauth/request_token'
 let s:access_token_url  = 'https://twitter.com/oauth/access_token'
 let s:authorize_url     = 'https://twitter.com/oauth/authorize'
 let s:api_url           = 'https://api.twitter.com/1'
+let s:search_url        = 'https://search.twitter.com'
 
 let s:consumer_key    = 'udAowgINoQh37TJH0pjmuQ'
 let s:consumer_secret = 'SToI3ECedpxN9QG4R8iaLG4xsAJbzrOWuDnl7DF4'
@@ -73,13 +74,22 @@ let s:apis = [
 
 let s:twibill = {}
 
-function! s:twibill.get(url, ctx, param)
-  let res = oauth#get(a:url, a:ctx, {}, a:param)
+function! s:twibill.ctx()
+  return {
+        \ 'consumer_key'        : self.config.consumer_key ,
+        \ 'consumer_secret'     : self.config.consumer_secret ,
+        \ 'access_token'        : self.config.access_token ,
+        \ 'access_token_secret' : self.config.access_token_secret
+        \ }
+endfunction
+
+function! s:twibill.get(url, param)
+  let res = oauth#get(a:url, self.ctx(), {}, a:param)
   return json#decode(res.content)
 endfunction
 
-function! s:twibill.post(url, ctx, param)
-  let res = oauth#post(a:url, a:ctx, {}, a:param)
+function! s:twibill.post(url, param)
+  let res = oauth#post(a:url, self.ctx(), {}, a:param)
   return json#decode(res.content)
 endfunction
 
@@ -89,6 +99,10 @@ function! s:twibill.update(text, ...)
     call extend(param, a:1)
   endif
   return self.update_status(param)
+endfunction
+
+function! s:twibill.search(text, ...)
+  return self.get(s:search_url . '/search.json' ,{'q' : a:text})
 endfunction
 
 function! s:setup()
@@ -131,16 +145,10 @@ function! s:setup()
       endfor
 
       let param = (len(a:000) != 0 && type(a:000[-1]) == 4) ? a:000[-1] : {}
-      let ctx = {
-            \ 'consumer_key'        : self.config.consumer_key ,
-            \ 'consumer_secret'     : self.config.consumer_secret ,
-            \ 'access_token'        : self.config.access_token ,
-            \ 'access_token_secret' : self.config.access_token_secret
-            \ }
       if api_config.http_method == 'get'
-        return self.get(url, ctx, param)
+        return self.get(url, param)
       else
-        return self.post(url, ctx, param)
+        return self.post(url, param)
       endif
     endfunction
   endfor
