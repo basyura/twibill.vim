@@ -186,9 +186,9 @@ endfunction
 "
 "
 function! twibill#new(config)
-  let twibill = copy(s:twibill)
+  let twibill = deepcopy(s:twibill)
 
-  let config = copy(a:config)
+  let config = deepcopy(a:config)
   let config.consumer_key    = get(a:config, 'consumer_key'   , s:consumer_key)
   let config.consumer_secret = get(a:config, 'consumer_secret', s:consumer_secret)
   let twibill.config = config
