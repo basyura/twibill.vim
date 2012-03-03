@@ -6,6 +6,7 @@ let s:access_token_url  = 'https://twitter.com/oauth/access_token'
 let s:authorize_url     = 'https://twitter.com/oauth/authorize'
 let s:api_url           = 'https://api.twitter.com/1'
 let s:search_url        = 'https://search.twitter.com'
+"let s:search_url        = 'http://api.twitter.com/1/users'
 
 let s:consumer_key    = 'udAowgINoQh37TJH0pjmuQ'
 let s:consumer_secret = 'SToI3ECedpxN9QG4R8iaLG4xsAJbzrOWuDnl7DF4'
@@ -102,7 +103,9 @@ function! s:twibill.update(text, ...)
 endfunction
 
 function! s:twibill.search(text, ...)
-  return self.get(s:search_url . '/search.json' ,{'q' : a:text})
+  let param = {'q' : a:text}
+  call extend(param, a:1)
+  return self.get(s:search_url . '/search.json' ,param)
 endfunction
 
 function! s:setup()
