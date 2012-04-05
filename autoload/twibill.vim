@@ -85,13 +85,13 @@ function! s:twibill.ctx()
 endfunction
 
 function! s:twibill.get(url, param)
-  let res = oauth#get(a:url, self.ctx(), {}, a:param)
-  return json#decode(res.content)
+  let res = twibill#oauth#get(a:url, self.ctx(), {}, a:param)
+  return twibill#json#decode(res.content)
 endfunction
 
 function! s:twibill.post(url, param)
-  let res = oauth#post(a:url, self.ctx(), {}, a:param)
-  return json#decode(res.content)
+  let res = twibill#oauth#post(a:url, self.ctx(), {}, a:param)
+  return twibill#json#decode(res.content)
 endfunction
 
 function! s:twibill.update(text, ...)
@@ -171,7 +171,7 @@ function! twibill#access_token(...)
   let config.consumer_key    = get(config, 'consumer_key'   , s:consumer_key)
   let config.consumer_secret = get(config, 'consumer_secret', s:consumer_secret)
 
-  let ctx = oauth#request_token(s:request_token_url, config)
+  let ctx = twibill#oauth#request_token(s:request_token_url, config)
 
   execute "OpenBrowser " . s:authorize_url . "?oauth_token=" . ctx.request_token
   
@@ -179,7 +179,7 @@ function! twibill#access_token(...)
 
   let pin = input("Enter Twitter OAuth PIN: ")
 
-  return oauth#access_token(s:access_token_url, ctx , {'oauth_verifier' : pin})
+  return twibill#oauth#access_token(s:access_token_url, ctx , {'oauth_verifier' : pin})
 endfunction
 "
 " config : {
