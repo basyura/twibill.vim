@@ -120,7 +120,7 @@ EOF
 endfunction
 
 function! s:sha1_vim(key, txt)
-    return twibill#hmac#hmac(a:key, a:txt, 'sha1#sha1bin', 64)
+    return twibill#hmac#hmac(a:key, a:txt, 'twibill#sha1#sha1bin', 64)
 endfunction
 
 " @param List key
