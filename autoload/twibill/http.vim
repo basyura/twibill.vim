@@ -181,7 +181,8 @@ function! twibill#http#post(url, ...)
   call writefile(split(postdatastr, "\n"), file, "b")
   let res = system(command . " --data-binary @" . quote.file.quote)
   call delete(file)
-  if res =~ '^HTTP/1.\d 3' || res =~ '^HTTP/1\.\d 200 Connection established'
+  if res =~ '^HTTP/1.\d 3' || res =~ '^HTTP/1\.\d 200 Connection established' 
+        \ || res =~ '^HTTP/1.\d 100 Continue'
     let pos = stridx(res, "\r\n\r\n")
     if pos != -1
       let res = res[pos+4:]
