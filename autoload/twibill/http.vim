@@ -135,6 +135,12 @@ function! twibill#http#get(url, ...)
   endfor
   let command .= " ".quote.url.quote
   let res = system(command)
+  if res == ''
+    return {
+    \ 'header'  : '',
+    \ 'content' : "{'error' : 'http connection error'}"
+    \}
+  endif
   if res =~ '^HTTP/1.\d 3' || res =~ '^HTTP/1\.\d 200 Connection established'
     let pos = stridx(res, "\r\n\r\n")
     if pos != -1
