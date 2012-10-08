@@ -163,11 +163,11 @@ function! twibill#http#get(url, ...)
   \}
 endfunction
 
-function! twibill#http#post(url, ...)
-  let postdata = a:0 > 0 ? a:000[0] : {}
-  let headdata = a:0 > 1 ? a:000[1] : {}
-  let method = a:0 > 2 ? a:000[2] : "POST"
-  let url = a:url
+function! twibill#http#post(ctx, url, query, headdata)
+  let url      = a:url
+  let postdata = a:query
+  let headdata = a:headdata
+  let method   = "POST"
   if type(postdata) == 4
     let postdatastr = twibill#http#encodeURI(postdata)
   else
@@ -185,8 +185,22 @@ function! twibill#http#post(url, ...)
   let command .= " ".quote.url.quote
   let file = tempname()
   call writefile(split(postdatastr, "\n"), file, "b")
-  let res = system(command . " --data-binary @" . quote.file.quote)
-  call delete(file)
+  " async post
+  if a:ctx.isAsync
+    let res = s:system_async(
+          \ command . " --data-binary @" . substitute(quote.file.quote, '\\', '/', "g"),
+          \ s:local("finish"))
+    return { "header"  : "", "content" : "{}" }
+  endif
+  " sync post
+  let res = system(command . " --data-binary @" . quote.file.quote) | call delete(file)
+  return s:parse_response(res)
+endfunction
+"
+"
+"
+function! s:parse_response(res)
+  let res = a:res
   if res =~ '^HTTP/1.\d 3' || res =~ '^HTTP/1\.\d 200 Connection established' 
         \ || res =~ '^HTTP/1.\d 100 Continue'
     let pos = stridx(res, "\r\n\r\n")
@@ -205,9 +219,88 @@ function! twibill#http#post(url, ...)
     let content = res[pos+2:]
   endif
   return {
-  \ "header" : split(res[0:pos], '\r\?\n'),
-  \ "content" : content
-  \}
+    \ "header" : split(res[0:pos], '\r\?\n'),
+    \ "content" : content
+    \}
+endfunction
+"
+" 非同期でコマンドを実行
+"
+function! s:system_async(cmd, handler)
+  let cmd = a:cmd
+  let vimproc = vimproc#pgroup_open(cmd)
+  call vimproc.stdin.close()
+
+    " 1つのインスタンスを使いまわしているので2回呼ばれるとアウト
+  let s:vimproc = vimproc
+  let s:result = ""
+
+  augroup vimproc-async-receive-test
+    execute "autocmd! CursorHold,CursorHoldI * call"
+          \ "s:receive_vimproc_result(".string(a:handler).")"
+  augroup END
+endfunction
+"
+" コマンドの終了チェック関数
+"
+function! s:receive_vimproc_result(handler)
+  if !has_key(s:, "vimproc")
+    return
+  endif
+
+  let vimproc = s:vimproc
+
+  try
+    if !vimproc.stdout.eof
+      let s:result .= vimproc.stdout.read()
+    endif
+
+    if !vimproc.stderr.eof
+      let s:result .= vimproc.stderr.read()
+    endif
+
+    if !(vimproc.stdout.eof && vimproc.stderr.eof)
+      return 0
+    endif
+  catch
+    echom v:throwpoint
+  endtry
+
+  call function(a:handler)(s:result)
+
+  augroup vimproc-async-receive-test
+    autocmd!
+  augroup END
+
+  call vimproc.stdout.close()
+  call vimproc.stderr.close()
+  call vimproc.waitpid()
+  unlet s:vimproc
+  unlet s:result
+endfunction
+"
+" 外部の s:関数を使用する場合に必要
+"
+function! s:SID()
+  return matchstr(expand('<sfile>'), '<SNR>\zs\d\+\ze_SID$')
+endfun
+"
+"
+"
+function! s:local(funcname)
+  return "<SNR>".s:SID()."_".a:funcname
+endfunction
+"
+" コマンド終了時に呼ばれる関数
+"
+function! s:finish(result)
+  let res     = s:parse_response(a:result)
+  let content = twibill#json#decode(res.content)
+  if has_key(content, 'error')
+    redraw | echohl ErrorMsg | echo content.error | echohl None
+    return 0
+  endif
+  return 1
 endfunction
 
 let &cpo = s:save_cpo

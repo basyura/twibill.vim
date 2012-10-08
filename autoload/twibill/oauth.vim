@@ -29,7 +29,7 @@ function! twibill#oauth#request_token(url, ctx, ...)
   let query_string .= twibill#http#encodeURI(twibill#http#encodeURI(query))
   let hmacsha1 = twibill#hmac#sha1(twibill#http#encodeURI(a:ctx.consumer_secret) . "&", query_string)
   let query["oauth_signature"] = twibill#base64#b64encodebin(hmacsha1)
-  let res = twibill#http#post(a:url, query, {})
+  let res = twibill#http#post(a:ctx, a:url, query, {})
   let a:ctx.request_token = twibill#http#decodeURI(substitute(filter(split(res.content, "&"), "v:val =~ '^oauth_token='")[0], '^[^=]*=', '', ''))
   let a:ctx.request_token_secret = twibill#http#decodeURI(substitute(filter(split(res.content, "&"), "v:val =~ '^oauth_token_secret='")[0], '^[^=]*=', '', ''))
   return a:ctx
@@ -58,7 +58,7 @@ function! twibill#oauth#access_token(url, ctx, ...)
   let query_string .= twibill#http#encodeURI(twibill#http#encodeURI(query))
   let hmacsha1 = twibill#hmac#sha1(twibill#http#encodeURI(a:ctx.consumer_secret) . "&" . twibill#http#encodeURI(a:ctx.request_token_secret), query_string)
   let query["oauth_signature"] = twibill#base64#b64encodebin(hmacsha1)
-  let res = twibill#http#post(a:url, query, {})
+  let res = twibill#http#post(a:ctx, a:url, query, {})
   let a:ctx.access_token = twibill#http#decodeURI(substitute(filter(split(res.content, "&"), "v:val =~ '^oauth_token='")[0], '^[^=]*=', '', ''))
   let a:ctx.access_token_secret = twibill#http#decodeURI(substitute(filter(split(res.content, "&"), "v:val =~ '^oauth_token_secret='")[0], '^[^=]*=', '', ''))
   return a:ctx
@@ -152,7 +152,7 @@ function! twibill#oauth#post(url, ctx, ...)
   endfor
   let auth = auth[:-2]
   let headdata["Authorization"] = auth
-  let res = twibill#http#post(a:url, postdata, headdata)
+  let res = twibill#http#post(a:ctx, a:url, postdata, headdata)
   return res
 endfunction
 

@@ -76,11 +76,13 @@ let s:apis = [
 let s:twibill = {}
 
 function! s:twibill.ctx()
+  " TODO: config をそのまま渡せばいいような・・・
   return {
         \ 'consumer_key'        : self.config.consumer_key ,
         \ 'consumer_secret'     : self.config.consumer_secret ,
         \ 'access_token'        : self.config.access_token ,
-        \ 'access_token_secret' : self.config.access_token_secret
+        \ 'access_token_secret' : self.config.access_token_secret,
+        \ 'isAsync'             : self.config.isAsync,
         \ }
 endfunction
 
@@ -194,6 +196,7 @@ function! twibill#new(config)
   let config = deepcopy(a:config)
   let config.consumer_key    = get(a:config, 'consumer_key'   , s:consumer_key)
   let config.consumer_secret = get(a:config, 'consumer_secret', s:consumer_secret)
+  let config.isAsync         = get(a:config, 'isAsync'        , 0)
   let twibill.config = config
 
   return twibill
