@@ -187,9 +187,9 @@ function! twibill#http#post(ctx, url, query, headdata)
   call writefile(split(postdatastr, "\n"), file, "b")
   " async post
   if a:ctx.isAsync
-    let res = s:system_async(
+    let res = twibill#async#system(
           \ command . " --data-binary @" . substitute(quote.file.quote, '\\', '/', "g"),
-          \ s:local("finish"))
+          \ s:local("async_post_finish"))
     return { "header"  : "", "content" : "{}" }
   endif
   " sync post
@@ -224,59 +224,16 @@ function! s:parse_response(res)
     \}
 endfunction
 "
-" 非同期でコマンドを実行
+" 非同期コマンド終了時に呼ばれる関数
 "
-function! s:system_async(cmd, handler)
-  let cmd = a:cmd
-  let vimproc = vimproc#pgroup_open(cmd)
-  call vimproc.stdin.close()
-
-    " 1つのインスタンスを使いまわしているので2回呼ばれるとアウト
-  let s:vimproc = vimproc
-  let s:result = ""
-
-  augroup vimproc-async-receive-test
-    execute "autocmd! CursorHold,CursorHoldI * call"
-          \ "s:receive_vimproc_result(".string(a:handler).")"
-  augroup END
-endfunction
-"
-" コマンドの終了チェック関数
-"
-function! s:receive_vimproc_result(handler)
-  if !has_key(s:, "vimproc")
-    return
+function! s:async_post_finish(result)
+  let res     = s:parse_response(a:result)
+  let content = twibill#json#decode(res.content)
+  if has_key(content, 'error')
+    redraw | echohl ErrorMsg | echo content.error | echohl None
+    return 0
   endif
-
-  let vimproc = s:vimproc
-
-  try
-    if !vimproc.stdout.eof
-      let s:result .= vimproc.stdout.read()
-    endif
-
-    if !vimproc.stderr.eof
-      let s:result .= vimproc.stderr.read()
-    endif
-
-    if !(vimproc.stdout.eof && vimproc.stderr.eof)
-      return 0
-    endif
-  catch
-    echom v:throwpoint
-  endtry
-
-  call function(a:handler)(s:result)
-
-  augroup vimproc-async-receive-test
-    autocmd!
-  augroup END
-
-  call vimproc.stdout.close()
-  call vimproc.stderr.close()
-  call vimproc.waitpid()
-  unlet s:vimproc
-  unlet s:result
+  return 1
 endfunction
 "
 " 外部の s:関数を使用する場合に必要
@@ -290,18 +247,7 @@ endfun
 function! s:local(funcname)
   return "<SNR>".s:SID()."_".a:funcname
 endfunction
-"
-" コマンド終了時に呼ばれる関数
-"
-function! s:finish(result)
-  let res     = s:parse_response(a:result)
-  let content = twibill#json#decode(res.content)
-  if has_key(content, 'error')
-    redraw | echohl ErrorMsg | echo content.error | echohl None
-    return 0
-  endif
-  return 1
-endfunction
+
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
