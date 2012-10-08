@@ -81,7 +81,7 @@ function! twibill#http#post(ctx, url, query, headdata)
   if a:ctx.isAsync
     let res = twibill#async#system(
           \ command . " --data-binary @" . substitute(quote.file.quote, '\\', '/', "g"),
-          \ s:local("async_post_finish"))
+          \ s:local("async_post_finish"), {'file' : file})
     return { "header"  : "", "content" : "{}" }
   endif
   " sync post
@@ -180,9 +180,10 @@ endfunction
 "
 " 非同期コマンド終了時に呼ばれる関数
 "
-function! s:async_post_finish(result)
+function! s:async_post_finish(result, param)
   let res     = s:parse_response(a:result)
   let content = twibill#json#decode(res.content)
+  call delete(a:param.file)
   if has_key(content, 'error')
     redraw | echohl ErrorMsg | echo content.error | echohl None
     return 0

@@ -1,7 +1,7 @@
 "
 " 非同期でコマンドを実行
 "
-function! twibill#async#system(cmd, handler)
+function! twibill#async#system(cmd, handler, param)
   let cmd = a:cmd
   let vimproc = vimproc#pgroup_open(cmd)
   call vimproc.stdin.close()
@@ -10,15 +10,17 @@ function! twibill#async#system(cmd, handler)
   let s:vimproc = vimproc
   let s:result = ""
 
+  let param = twibill#json#encode(a:param)
+
   augroup vimproc-async-receive-test
     execute "autocmd! CursorHold,CursorHoldI * call"
-          \ "s:receive_vimproc_result(".string(a:handler).")"
+          \ "s:receive_vimproc_result(" . string(a:handler) . "," . param . ")"
   augroup END
 endfunction
 "
 " コマンドの終了チェック関数
 "
-function! s:receive_vimproc_result(handler)
+function! s:receive_vimproc_result(handler, param)
   if !has_key(s:, "vimproc")
     return
   endif
@@ -41,7 +43,7 @@ function! s:receive_vimproc_result(handler)
     echom v:throwpoint
   endtry
 
-  call function(a:handler)(s:result)
+  call function(a:handler)(s:result, a:param)
 
   augroup vimproc-async-receive-test
     autocmd!
