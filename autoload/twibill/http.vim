@@ -82,7 +82,7 @@ function! twibill#http#post(ctx, url, query, headdata)
     let res = twibill#async#system(
           \ command . " --data-binary @" . substitute(quote.file.quote, '\\', '/', "g"),
           \ s:local("async_post_finish"), {'file' : file})
-    return { "header"  : "", "content" : "{}" }
+    return { "header"  : "", "content" : "{'isAsync' : 1}" }
   endif
   " sync post
   let res = system(command . " --data-binary @" . quote.file.quote) | call delete(file)
@@ -185,8 +185,10 @@ function! s:async_post_finish(result, param)
   let content = twibill#json#decode(res.content)
   call delete(a:param.file)
   if has_key(content, 'error')
-    redraw | echohl ErrorMsg | echo content.error | echohl None
+    redraw | echohl ErrorMsg | echo 'tweetvim - ' . content.error | echohl None
     return 0
+  else
+    echo 'tweetvim - async post ok'
   endif
   return 1
 endfunction
