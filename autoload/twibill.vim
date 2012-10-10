@@ -75,6 +75,11 @@ let s:apis = [
 
 let s:twibill = {}
 
+let s:version = 1.0
+function! twibill#version()
+    return s:version
+endfunction
+
 function! s:twibill.ctx()
   " TODO: config をそのまま渡せばいいような・・・
   return {
