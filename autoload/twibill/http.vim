@@ -78,7 +78,7 @@ function! twibill#http#post(ctx, url, query, headdata)
   let file = tempname()
   call writefile(split(postdatastr, "\n"), file, "b")
   " async post
-  if a:ctx.isAsync
+  if get(a:ctx, 'isAsync', 0)
     let res = twibill#async#system(
           \ command . " --data-binary @" . substitute(quote.file.quote, '\\', '/', "g"),
           \ s:local("async_post_finish"), {'file' : file})

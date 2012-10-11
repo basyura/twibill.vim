@@ -179,6 +179,7 @@ function! twibill#access_token(...)
   let config.consumer_secret = get(config, 'consumer_secret', s:consumer_secret)
 
   let ctx = twibill#oauth#request_token(s:request_token_url, config)
+  let ctx.isAsync = 0
 
   execute "OpenBrowser " . s:authorize_url . "?oauth_token=" . ctx.request_token
   
