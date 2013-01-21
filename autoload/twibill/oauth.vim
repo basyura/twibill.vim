@@ -94,6 +94,13 @@ function! twibill#oauth#get(url, ctx, ...)
   let query_string .= "&"
   let query_string .= twibill#http#encodeURI(twibill#http#encodeURI(query))
   let hmacsha1 = twibill#hmac#sha1(twibill#http#encodeURI(a:ctx.consumer_secret) . "&" . twibill#http#encodeURI(a:ctx.access_token_secret), query_string)
+
+  " bug ?
+  if hmacsha1 == ''
+    echomsg "hmacsha1 is empty. retry"
+    let hmacsha1 = twibill#hmac#sha1(twibill#http#encodeURI(a:ctx.consumer_secret) . "&" . twibill#http#encodeURI(a:ctx.access_token_secret), query_string)
+  endif
+
   let query["oauth_signature"] = twibill#base64#b64encodebin(hmacsha1)
   if type(getdata) == 4
     for key in keys(getdata)

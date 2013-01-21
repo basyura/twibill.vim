@@ -26,6 +26,7 @@ function! twibill#http#get(url, ...)
 	endif
   endfor
   let command .= " ".quote.url.quote
+  "echomsg command
   let res = system(command)
   if res == ''
     return {

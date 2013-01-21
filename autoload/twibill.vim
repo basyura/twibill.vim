@@ -17,9 +17,8 @@ let s:apis = [
       \ 'public_timeline         /statuses/public_timeline',
       \ 'home_timeline           /statuses/home_timeline',
       \ 'friends_timeline        /statuses/friends_timeline',
-      \ 'replies                 /statuses/replies',
-      \ 'mentions                /statuses/mentions',
-      \ 'user_timeline           /statuses/user_timeline/%s',
+      \ 'mentions                /statuses/mentions_timeline',
+      \ 'user_timeline           /statuses/user_timeline.json?screen_name=%s',
       \ 'show                    /statuses/show/%s',
       \ 'friends                 /statuses/friends/%s',
       \ 'followers               /statuses/followers/%s',
@@ -39,8 +38,8 @@ let s:apis = [
       \ 'followers_ids           /followers/ids/%s',
       \ 'friends_ids             /friends/ids/%s',
       \ 'favorites               /favorites/%s',
-      \ 'favorite                /favorites/create/%s            post',
-      \ 'remove_favorite         /favorites/destroy/%s           delete',
+      \ 'favorite                /favorites/create.json?id=%s            post',
+      \ 'remove_favorite         /favorites/destroy.json?id=%s           delete',
       \ 'verify_credentials      /account/verify_credentials     get',
       \ 'end_session             /account/end_session            post',
       \ 'update_delivery_device  /account/update_delivery_device post',
@@ -62,9 +61,9 @@ let s:apis = [
       \ 'update_list             /%s/lists/%s                    put',
       \ 'delete_list             /%s/lists/%s                    delete',
       \ 'list                    /%s/lists/%s',
-      \ 'lists                   /lists/list',
+      \ 'lists                   /lists/list.json?screen_name=%s',
       \ 'lists_followers         /%s/lists/memberships',
-      \ 'list_statuses           /%s/lists/%s/statuses',
+      \ 'list_statuses           /lists/statuses.json?owner_screen_name=%s&slug=%s',
       \ 'list_members            /%s/%s/members',
       \ 'add_member_to_list      /%s/%s/members                  post',
       \ 'remove_member_from_list /%s/%s/members                  delete',
@@ -92,12 +91,33 @@ function! s:twibill.ctx()
 endfunction
 
 function! s:twibill.get(url, param)
-  let res = twibill#oauth#get(a:url, self.ctx(), {}, a:param)
+
+  " divide to url and param
+  let url   = a:url
+  let param = a:param
+
+  let pair = twibill#util#divide_url(url)
+  if !empty(pair)
+    let  url = pair[0]
+    call extend(param, pair[1])
+  endif
+
+  let res = twibill#oauth#get(url, self.ctx(), {}, param)
   return twibill#json#decode(res.content)
 endfunction
 
 function! s:twibill.post(url, param)
-  let res = twibill#oauth#post(a:url, self.ctx(), {}, a:param)
+
+  let url   = a:url
+  let param = a:param
+
+  let pair = twibill#util#divide_url(url)
+  if !empty(pair)
+    let  url = pair[0]
+    call extend(param, pair[1])
+  endif
+
+  let res = twibill#oauth#post(url, self.ctx(), {}, param)
   return twibill#json#decode(res.content)
 endfunction
 
@@ -125,8 +145,8 @@ function! s:setup()
     let info = split(line, '\s\+')
 
     let api_config = {
-          \ 'method'      : info[0], 
-          \ 'url'         : info[1], 
+          \ 'method'      : info[0],
+          \ 'url'         : info[1],
           \ 'http_method' : len(info) == 2 ? 'get' : info[2]
           \ }
 
@@ -152,10 +172,14 @@ function! s:setup()
       endif
 
       let api_config = self[api . '_config']
-      let url = s:api_url . api_config.url . '.json'
+
+      let url = s:api_url . api_config.url
+      if stridx(api_config.url, '.json') == -1
+        let url .=  '.json'
+      endif
 
       let num = len(split(url, '%s', 1)) - 1
-      for v in range(num) 
+      for v in range(num)
         let url = substitute(url, "%s", a:000[v] , "")
       endfor
 
@@ -187,7 +211,7 @@ function! twibill#access_token(...)
   let ctx.isAsync = 0
 
   execute "OpenBrowser " . s:authorize_url . "?oauth_token=" . ctx.request_token
-  
+
 	echo "now launched your browser to authenticate"
 
   let pin = input("Enter Twitter OAuth PIN: ")
