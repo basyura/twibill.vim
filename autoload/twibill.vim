@@ -132,6 +132,8 @@ endfunction
 function! s:twibill.search(text, ...)
   let param = {'q' : a:text}
   call extend(param, a:1)
+  let _ = has_key(param, 'page') ? remove(param, 'page') : ''
+  let _ = has_key(param, 'per_page') ? remove(param, 'per_page') : ''
   return self.get(s:search_url . '/tweets.json' ,param).statuses
 endfunction
 
