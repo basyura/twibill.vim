@@ -4,8 +4,8 @@ set cpo&vim
 let s:request_token_url = 'https://twitter.com/oauth/request_token'
 let s:access_token_url  = 'https://twitter.com/oauth/access_token'
 let s:authorize_url     = 'https://twitter.com/oauth/authorize'
-let s:api_url           = 'https://api.twitter.com/1'
-let s:search_url        = 'https://search.twitter.com'
+let s:api_url           = 'https://api.twitter.com/1.1'
+let s:search_url        = 'https://api.twitter.com/1.1/search'
 "let s:search_url        = 'http://api.twitter.com/1/users'
 
 let s:consumer_key    = 'udAowgINoQh37TJH0pjmuQ'
@@ -62,7 +62,7 @@ let s:apis = [
       \ 'update_list             /%s/lists/%s                    put',
       \ 'delete_list             /%s/lists/%s                    delete',
       \ 'list                    /%s/lists/%s',
-      \ 'lists                   /%s/lists',
+      \ 'lists                   /lists/list',
       \ 'lists_followers         /%s/lists/memberships',
       \ 'list_statuses           /%s/lists/%s/statuses',
       \ 'list_members            /%s/%s/members',
@@ -112,7 +112,12 @@ endfunction
 function! s:twibill.search(text, ...)
   let param = {'q' : a:text}
   call extend(param, a:1)
-  return self.get(s:search_url . '/search.json' ,param)
+  return self.get(s:search_url . '/tweets.json' ,param).statuses
+endfunction
+
+function! s:twibill.userstream()
+  let url = "https://userstream.twitter.com/1.1/user.json"
+  return twibill#oauth#stream(url, self.ctx())
 endfunction
 
 function! s:setup()

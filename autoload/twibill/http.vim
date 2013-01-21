@@ -55,6 +55,29 @@ function! twibill#http#get(url, ...)
   \}
 endfunction
 
+
+function! twibill#http#stream(url, ...)
+  let getdata = a:0 > 0 ? a:000[0] : {}
+  let headdata = a:0 > 1 ? a:000[1] : {}
+  let url = a:url
+  let getdatastr = twibill#http#encodeURI(getdata)
+  if strlen(getdatastr)
+    let url .= "?" . getdatastr
+  endif
+  let command = 'curl -L -s -k -i '
+  let quote = &shellxquote == '"' ?  "'" : '"'
+  for key in keys(headdata)
+    if has('win32')
+      let command .= " -H " . quote . key . ": " . substitute(headdata[key], '"', '"""', 'g') . quote
+    else
+      let command .= " -H " . quote . key . ": " . headdata[key] . quote
+	endif
+  endfor
+  let command .= " ".quote.url.quote
+  echomsg command
+  return vimproc#plineopen2(command)
+endfunction
+
 function! twibill#http#post(ctx, url, query, headdata)
   let url      = a:url
   let postdata = a:query
