@@ -75,7 +75,7 @@ let s:apis = [
 
 let s:twibill = {}
 
-let s:version = 1.0
+let s:version = 1.1
 function! twibill#version()
     return s:version
 endfunction
