@@ -97,7 +97,7 @@ function! twibill#oauth#get(url, ctx, ...)
 
   " bug ?
   if hmacsha1 == ''
-    echomsg "hmacsha1 is empty. retry"
+    echomsg "hmacsha1 is empty. retried"
     let hmacsha1 = twibill#hmac#sha1(twibill#http#encodeURI(a:ctx.consumer_secret) . "&" . twibill#http#encodeURI(a:ctx.access_token_secret), query_string)
   endif
 
