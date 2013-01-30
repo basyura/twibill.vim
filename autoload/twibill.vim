@@ -37,7 +37,7 @@ let s:apis = [
       \ 'friendship_exists       /friendships/exists',
       \ 'followers_ids           /followers/ids/%s',
       \ 'friends_ids             /friends/ids/%s',
-      \ 'favorites               /favorites/%s',
+      \ 'favorites               /favorites/list.json?screen_name=%s',
       \ 'favorite                /favorites/create.json?id=%s            post',
       \ 'remove_favorite         /favorites/destroy.json?id=%s           delete',
       \ 'verify_credentials      /account/verify_credentials     get',
