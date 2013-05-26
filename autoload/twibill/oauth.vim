@@ -144,8 +144,6 @@ function! twibill#oauth#stream(url, ctx)
 
   let cmd = "curl -s --get '" . a:url . "' --header 'Authorization: " . auth . "'"
 
-"  let cmd  = "curl -s -u" . "basyura" . ":" . "wakana1130"
-"            \ . " https://stream.twitter.com/1.1/statuses/sample.json"
   let cmd = substitute(cmd, '%', '\\%', 'g')
   echomsg cmd
 
@@ -153,9 +151,9 @@ function! twibill#oauth#stream(url, ctx)
 
   let proc = vimproc#plineopen2(cmd)
   while 1
-    echo reltimestr(reltime())
+    "echo reltimestr(reltime())
     let content = proc.stdout.read_line()
-    echo content
+    "echo content
     if content == ''
       sleep 1
       continue
