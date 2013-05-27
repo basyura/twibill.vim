@@ -119,6 +119,8 @@ endfunction
 
 function! twibill#oauth#stream(url, ctx)
 
+  let url = a:url
+
   let query = {}
   let time_stamp = localtime()
   let nonce = time_stamp . " " . time_stamp
@@ -131,7 +133,7 @@ function! twibill#oauth#stream(url, ctx)
   let query["oauth_token"] = a:ctx.access_token
   let query["oauth_version"] = "1.0"
   let query_string = query["oauth_request_method"] . "&"
-  let query_string .= twibill#http#encodeURI(a:url)
+  let query_string .= twibill#http#encodeURI(url)
   let query_string .= "&"
   let query_string .= twibill#http#encodeURI(twibill#http#encodeURI(query))
   let hmacsha1 = twibill#hmac#sha1(twibill#http#encodeURI(a:ctx.consumer_secret) . "&" . twibill#http#encodeURI(a:ctx.access_token_secret), query_string)
@@ -142,8 +144,10 @@ function! twibill#oauth#stream(url, ctx)
   endfor
   let auth = auth[:-3]
 
-  let cmd = "curl -s --get '" . a:url . "' --header 'Authorization: " . auth . "'"
+  let cmd = "curl -s --get '" . url . "' --header 'Authorization: " . auth . "'"
 
+  "let cmd  = "curl -s -u" . g:tweetvim_user . ":" . g:tweetvim_password
+            "\ . " https://stream.twitter.com/1.1/statuses/sample.json"
   let cmd = substitute(cmd, '%', '\\%', 'g')
   echomsg cmd
 
@@ -153,7 +157,7 @@ function! twibill#oauth#stream(url, ctx)
   while 1
     "echo reltimestr(reltime())
     let content = proc.stdout.read_line()
-    "echo content
+    echo content
     if content == ''
       sleep 1
       continue
