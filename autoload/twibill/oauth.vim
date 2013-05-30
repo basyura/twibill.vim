@@ -76,7 +76,7 @@ function! twibill#oauth#post(url, ctx, ...)
   return res
 endfunction
 
-function! twibill#oauth#stream(url, ctx, ...)
+function! twibill#oauth#userstream(url, ctx, ...)
   let data = call('s:create_request_param', [a:ctx, a:url, "GET"] + a:000)
   let url  = a:url
   let headdata   = data[0]
@@ -96,29 +96,10 @@ function! twibill#oauth#stream(url, ctx, ...)
   endfor
   let command .= " ".quote.url.quote
 
-  echomsg command
-
   let vimproc = vimproc#ptyopen(command)
   call vimproc.stdin.close()
 
-  while 1
-    if !vimproc.stdout.eof
-      let res = vimproc.stdout.read()
-      let res = substitute(res, '\r', '', 'g')
-      if substitute(res, '\n', '', 'g') != ''
-        try
-          let status = webapi#json#decode(res)
-          echo status.user.screen_name . ' : ' . status.text
-        catch
-          echo 'decode error'
-        endtry
-      endif
-    endif
-    if !vimproc.stderr.eof
-      echo vimproc.stderr.read()
-    endif
-    sleep 1
-  endwhile
+  return vimproc
 endfunction
 
 function! s:create_request_param(ctx, url, method, ...)

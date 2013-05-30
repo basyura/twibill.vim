@@ -72,7 +72,7 @@ let s:apis = [
       \ 'remove_list             /%s/%s/subscribers              delete',
       \ ]
 
-let s:twibill = {}
+let s:twibill = {'stream_cache' : []}
 
 let s:version = 1.1
 function! twibill#version()
@@ -139,7 +139,19 @@ endfunction
 
 function! s:twibill.userstream()
   let url = "https://userstream.twitter.com/1.1/user.json"
-  return twibill#oauth#stream(url, self.ctx())
+  if len(self.stream_cache) > 0
+    for stream in self.stream_cache
+      call stream.stdout.close()
+      call stream.stderr.close()
+      call stream.waitpid()
+      "call vimproc#kill(stream.pid, 9)
+    endfor
+    let self.stream_cache = []
+  endif
+
+  let stream = twibill#oauth#userstream(url, self.ctx())
+  call add(self.stream_cache, stream)
+  return stream
 endfunction
 
 function! s:setup()
