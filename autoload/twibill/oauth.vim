@@ -70,11 +70,17 @@ function! twibill#oauth#get(url, ctx, ...)
   return res
 endfunction
 
+function! twibill#oauth#post(url, ctx, ...)
+  let data = call('s:create_request_param', [a:ctx, a:url, "POST"] + a:000)
+  let res  = twibill#http#post(a:ctx, a:url, data[1], data[0])
+  return res
+endfunction
+
 function! twibill#oauth#stream(url, ctx, ...)
   let data = call('s:create_request_param', [a:ctx, a:url, "GET"] + a:000)
-  let url = a:url
-  let headdata = data[0]
-  let getdata  = data[1]
+  let url  = a:url
+  let headdata   = data[0]
+  let getdata    = data[1]
   let getdatastr = twibill#http#encodeURI(getdata)
   if strlen(getdatastr)
     let url .= "?" . getdatastr
@@ -115,12 +121,6 @@ function! twibill#oauth#stream(url, ctx, ...)
   endwhile
 endfunction
 
-function! twibill#oauth#post(url, ctx, ...)
-  let data = call('s:create_request_param', [a:ctx, a:url, "POST"] + a:000)
-  let res  = twibill#http#post(a:ctx, a:url, data[1], data[0])
-  return res
-endfunction
-
 function! s:create_request_param(ctx, url, method, ...)
   let params   = a:0 > 0 ? a:000[0] : {}
   let getdata  = a:0 > 1 ? a:000[1] : {}
@@ -129,13 +129,13 @@ function! s:create_request_param(ctx, url, method, ...)
   let time_stamp = localtime()
   let nonce = time_stamp . " " . time_stamp
   let nonce = twibill#sha1#sha1(nonce)[0:28]
-  let query["oauth_consumer_key"] = a:ctx.consumer_key
-  let query["oauth_nonce"] = nonce
-  let query["oauth_request_method"] = a:method
+  let query["oauth_consumer_key"]     = a:ctx.consumer_key
+  let query["oauth_nonce"]            = nonce
+  let query["oauth_request_method"]   = a:method
   let query["oauth_signature_method"] = "HMAC-SHA1"
-  let query["oauth_timestamp"] = time_stamp
-  let query["oauth_token"] = a:ctx.access_token
-  let query["oauth_version"] = "1.0"
+  let query["oauth_timestamp"]        = time_stamp
+  let query["oauth_token"]            = a:ctx.access_token
+  let query["oauth_version"]          = "1.0"
   if type(params) == 4
     for key in keys(params)
       let query[key] = params[key]
@@ -172,14 +172,9 @@ function! s:create_request_param(ctx, url, method, ...)
   let headdata["Authorization"] = auth
 
   return [headdata, getdata]
-  
 endfunction
-
-
 
 let &cpo = s:save_cpo
 unlet s:save_cpo
 
 " vim:set et:
-"
-"
