@@ -143,8 +143,8 @@ function! s:twibill.userstream()
     for stream in self.stream_cache
       call stream.stdout.close()
       call stream.stderr.close()
-      call stream.waitpid()
-      "call vimproc#kill(stream.pid, 9)
+      "call stream.waitpid()
+      call vimproc#kill(stream.pid, 9)
     endfor
     let self.stream_cache = []
   endif
