@@ -72,6 +72,11 @@ let s:apis = [
       \ 'remove_list             /%s/%s/subscribers              delete',
       \ ]
 
+let s:stream_apis = {
+      \ 'user'   : {'url' : 'user',            'method' : 'GET'},
+      \ 'filter' : {'url' : 'statuses/filter', 'method' : 'POST'},
+      \ }
+
 let s:twibill = {'stream_cache' : []}
 
 let s:version = 1.1
@@ -142,7 +147,8 @@ function! s:twibill.stream(end_point)
     call self.close_streams()
   endif
 
-  let stream = twibill#oauth#stream(a:end_point, self.ctx())
+  let config = s:stream_apis[a:end_point]
+  let stream = twibill#oauth#stream(self.ctx(), config.url, config.method)
   call add(self.stream_cache, stream)
   return stream
 endfunction

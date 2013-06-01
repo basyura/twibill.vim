@@ -76,9 +76,9 @@ function! twibill#oauth#post(url, ctx, ...)
   return res
 endfunction
 
-function! twibill#oauth#stream(end_point, ctx, ...)
+function! twibill#oauth#stream(ctx, end_point, method, ...)
   let url = 'https://userstream.twitter.com/1.1/' . a:end_point . '.json'
-  let data = call('s:create_request_param', [a:ctx, url, "GET"] + a:000)
+  let data = call('s:create_request_param', [a:ctx, url, a:method] + a:000)
   let headdata   = data[0]
   let getdata    = data[1]
   let getdatastr = twibill#http#encodeURI(getdata)
