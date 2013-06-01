@@ -137,8 +137,7 @@ function! s:twibill.search(text, ...)
   return self.get(s:search_url . '/tweets.json' ,param).statuses
 endfunction
 
-function! s:twibill.userstream()
-  let url = "https://userstream.twitter.com/1.1/user.json"
+function! s:twibill.stream(end_point)
   if len(self.stream_cache) > 0
     for stream in self.stream_cache
       call stream.stdout.close()
@@ -149,7 +148,7 @@ function! s:twibill.userstream()
     let self.stream_cache = []
   endif
 
-  let stream = twibill#oauth#userstream(url, self.ctx())
+  let stream = twibill#oauth#stream(a:end_point, self.ctx())
   call add(self.stream_cache, stream)
   return stream
 endfunction
