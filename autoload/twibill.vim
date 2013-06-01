@@ -139,18 +139,21 @@ endfunction
 
 function! s:twibill.stream(end_point)
   if len(self.stream_cache) > 0
-    for stream in self.stream_cache
-      call stream.stdout.close()
-      call stream.stderr.close()
-      "call stream.waitpid()
-      call vimproc#kill(stream.pid, 9)
-    endfor
-    let self.stream_cache = []
+    call self.close_streams()
   endif
 
   let stream = twibill#oauth#stream(a:end_point, self.ctx())
   call add(self.stream_cache, stream)
   return stream
+endfunction
+
+function! s:twibill.close_streams()
+    for stream in self.stream_cache
+      call stream.stdout.close()
+      call stream.stderr.close()
+      call vimproc#kill(stream.pid, 9)
+    endfor
+    let self.stream_cache = []
 endfunction
 
 function! s:setup()
