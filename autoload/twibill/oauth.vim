@@ -78,7 +78,8 @@ endfunction
 
 function! twibill#oauth#stream(ctx, url, method, ...)
   let url  = a:url
-  let data = call('s:create_request_param', [a:ctx, url, a:method] + a:000)
+  " todo {}
+  let data = call('s:create_request_param', [a:ctx, url, a:method, {}] + a:000)
 
   let header = data[0]
   let query  = data[1]
