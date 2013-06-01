@@ -58,7 +58,7 @@ endfunction
 
 
 function! twibill#http#stream(url, ...)
-  let getdata = a:0 > 0 ? a:000[0] : {}
+  let getdata  = a:0 > 0 ? a:000[0] : {}
   let headdata = a:0 > 1 ? a:000[1] : {}
   let url = a:url
   let getdatastr = twibill#http#encodeURI(getdata)
@@ -75,7 +75,6 @@ function! twibill#http#stream(url, ...)
 	endif
   endfor
   let command .= " ".quote.url.quote
-  echomsg command
   return vimproc#plineopen2(command)
 endfunction
 

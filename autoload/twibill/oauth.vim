@@ -76,28 +76,52 @@ function! twibill#oauth#post(url, ctx, ...)
   return res
 endfunction
 
-function! twibill#oauth#stream(ctx, end_point, method, ...)
-  let url = 'https://userstream.twitter.com/1.1/' . a:end_point . '.json'
+function! twibill#oauth#stream(ctx, url, method, ...)
+  let url  = a:url
   let data = call('s:create_request_param', [a:ctx, url, a:method] + a:000)
-  let headdata   = data[0]
-  let getdata    = data[1]
-  let getdatastr = twibill#http#encodeURI(getdata)
-  if strlen(getdatastr)
-    let url .= "?" . getdatastr
+
+  let header = data[0]
+  let query  = data[1]
+  if a:method == 'GET'
+    let getdatastr = twibill#http#encodeURI(query)
+    if strlen(getdatastr)
+      let url .= "?" . getdatastr
+    endif
+    let command = 'curl -L -s -k -i '
+    let quote = &shellxquote == '"' ?  "'" : '"'
+    for key in keys(header)
+      if has('win32')
+        let command .= " -H " . quote . key . ": " . substitute(header[key], '"', '"""', 'g') . quote
+      else
+        let command .= " -H " . quote . key . ": " . header[key] . quote
+    endif
+    endfor
+    let command .= " ".quote.url.quote
+    let file = ''
+  else
+    let postdatastr = twibill#http#encodeURI(query)
+    let command = 'curl -L -s -k -i -X ' . a:method
+    let quote = &shellxquote == '"' ?  "'" : '"'
+    for key in keys(header)
+      if has('win32')
+        let command .= " -H " . quote . key . ": " . substitute(header[key], '"', '"""', 'g') . quote
+      else
+        let command .= " -H " . quote . key . ": " . header[key] . quote
+      endif
+    endfor
+    let file = tempname()
+    call writefile(split(postdatastr, "\n"), file, "b")
+    let command .= " ".quote.url.quote
+    let command = command . " --data-binary @" . quote.file.quote
+    echomsg command
   endif
-  let command = 'curl -L -s -k -i '
-  let quote = &shellxquote == '"' ?  "'" : '"'
-  for key in keys(headdata)
-    if has('win32')
-      let command .= " -H " . quote . key . ": " . substitute(headdata[key], '"', '"""', 'g') . quote
-    else
-      let command .= " -H " . quote . key . ": " . headdata[key] . quote
-	endif
-  endfor
-  let command .= " ".quote.url.quote
 
   let vimproc = vimproc#ptyopen(command)
   call vimproc.stdin.close()
+
+  "if file != ''
+    "call delete(file)
+  "endif
 
   return vimproc
 endfunction

@@ -73,8 +73,8 @@ let s:apis = [
       \ ]
 
 let s:stream_apis = {
-      \ 'user'   : {'url' : 'user',            'method' : 'GET'},
-      \ 'filter' : {'url' : 'statuses/filter', 'method' : 'POST'},
+      \ 'user'   : {'url' : 'https://userstream.twitter.com/1.1/user.json',        'method' : 'GET' },
+      \ 'filter' : {'url' : 'https://stream.twitter.com/1.1/statuses/filter.json', 'method' : 'POST'},
       \ }
 
 let s:twibill = {'stream_cache' : []}
@@ -142,13 +142,13 @@ function! s:twibill.search(text, ...)
   return self.get(s:search_url . '/tweets.json' ,param).statuses
 endfunction
 
-function! s:twibill.stream(end_point)
+function! s:twibill.stream(end_point, param)
   if len(self.stream_cache) > 0
     call self.close_streams()
   endif
 
   let config = s:stream_apis[a:end_point]
-  let stream = twibill#oauth#stream(self.ctx(), config.url, config.method)
+  let stream = twibill#oauth#stream(self.ctx(), config.url, config.method, a:param)
   call add(self.stream_cache, stream)
   return stream
 endfunction
