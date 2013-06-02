@@ -72,7 +72,12 @@ let s:apis = [
       \ 'remove_list             /%s/%s/subscribers              delete',
       \ ]
 
-let s:twibill = {}
+let s:stream_apis = {
+      \ 'user'   : {'url' : 'https://userstream.twitter.com/1.1/user.json',        'method' : 'GET' },
+      \ 'filter' : {'url' : 'https://stream.twitter.com/1.1/statuses/filter.json', 'method' : 'POST'},
+      \ }
+
+let s:twibill = {'stream_cache' : []}
 
 let s:version = 1.1
 function! twibill#version()
@@ -137,9 +142,24 @@ function! s:twibill.search(text, ...)
   return self.get(s:search_url . '/tweets.json' ,param).statuses
 endfunction
 
-function! s:twibill.userstream()
-  let url = "https://userstream.twitter.com/1.1/user.json"
-  return twibill#oauth#stream(url, self.ctx())
+function! s:twibill.stream(end_point, param)
+  if len(self.stream_cache) > 0
+    call self.close_streams()
+  endif
+
+  let config = s:stream_apis[a:end_point]
+  let stream = twibill#oauth#stream(self.ctx(), config.url, config.method, a:param)
+  call add(self.stream_cache, stream)
+  return stream
+endfunction
+
+function! s:twibill.close_streams()
+    for stream in self.stream_cache
+      call stream.stdout.close()
+      call stream.stderr.close()
+      call vimproc#kill(stream.pid, 9)
+    endfor
+    let self.stream_cache = []
 endfunction
 
 function! s:setup()
