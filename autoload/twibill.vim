@@ -157,7 +157,8 @@ function! s:twibill.close_streams()
     for stream in self.stream_cache
       call stream.stdout.close()
       call stream.stderr.close()
-      call vimproc#kill(stream.pid, 9)
+      call stream.kill(9)
+      call stream.waitpid()
     endfor
     let self.stream_cache = []
 endfunction
