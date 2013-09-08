@@ -235,7 +235,8 @@ function! twibill#access_token(...)
 
   execute "OpenBrowser " . s:authorize_url . "?oauth_token=" . ctx.request_token
 
-	echo "now launched your browser to authenticate"
+	echo "now launched your browser to authenticate. if did not launch, open this url yourself."
+  echo s:authorize_url . "?oauth_token=" . ctx.request_token
 
   let pin = input("Enter Twitter OAuth PIN: ")
 
