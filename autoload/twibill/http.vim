@@ -95,7 +95,7 @@ function! twibill#http#post(ctx, url, query, headdata)
       let command .= " -H " . quote . key . ": " . substitute(headdata[key], '"', '"""', 'g') . quote
     else
       let command .= " -H " . quote . key . ": " . headdata[key] . quote
-	endif
+	  endif
   endfor
   let command .= " ".quote.url.quote
   let file = tempname()
@@ -109,6 +109,12 @@ function! twibill#http#post(ctx, url, query, headdata)
   endif
   " sync post
   let res = system(command . " --data-binary @" . quote.file.quote) | call delete(file)
+  if get(g:, 'twibill_debug', 0)
+    echo a:query
+    echomsg command
+    echomsg res
+    let ret = input("enter to continue")
+  endif
   return s:parse_response(res)
 endfunction
 "

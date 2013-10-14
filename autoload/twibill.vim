@@ -65,7 +65,7 @@ let s:apis = [
       \ 'lists_followers         /%s/lists/memberships',
       \ 'list_statuses           /lists/statuses.json?owner_screen_name=%s&slug=%s',
       \ 'list_members            /%s/%s/members',
-      \ 'add_member_to_list      /%s/%s/members                  post',
+      \ 'add_member_to_list      /lists/members/create.json?slug=%s&screen_name=%s&owner_screen_name=%s  post',
       \ 'remove_member_from_list /%s/%s/members                  delete',
       \ 'list_following          /%s/%s/subscribers',
       \ 'follow_list             /%s/%s/subscribers              post',
