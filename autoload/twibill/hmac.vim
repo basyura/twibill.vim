@@ -18,6 +18,10 @@ function twibill#hmac#md5(key, text)
   return twibill#hmac#hmac(a:key, a:text, 'md5#md5bin', 64)
 endfunction
 
+function! twibill#hmac#sha1_method()
+  return s:sha1_method
+endfunction
+
 function twibill#hmac#sha1(key, txt)
 
   if exists('s:sha1_method')
@@ -55,7 +59,7 @@ ruby << EOF
   require 'openssl'
   key = VIM.evaluate("a:key")
   txt = VIM.evaluate("a:txt")
-  digest = OpenSSL::Digest::Digest.new('sha1')
+  digest = OpenSSL::Digest.new('sha1')
   result = OpenSSL::HMAC.hexdigest(digest, key, txt)
   VIM.command("let ret = '#{result}'")
 EOF
