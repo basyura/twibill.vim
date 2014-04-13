@@ -70,6 +70,7 @@ let s:apis = [
       \ 'list_following          /%s/%s/subscribers',
       \ 'follow_list             /%s/%s/subscribers              post',
       \ 'remove_list             /%s/%s/subscribers              delete',
+      \ 'configuration           /help/configuration             get',
       \ ]
 
 let s:stream_apis = {
