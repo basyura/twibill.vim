@@ -187,7 +187,7 @@ function! s:setup()
       let api = get(self, func_name, "")
       if api == ""
         for key in keys(self)
-          if string(self[key]) == func_name
+          if string(get(self, key)) == func_name
             let api = key
             let self[func_name] = api
             break
