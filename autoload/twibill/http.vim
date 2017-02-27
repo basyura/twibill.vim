@@ -16,7 +16,7 @@ function! twibill#http#get(url, ...)
   if strlen(getdatastr)
     let url .= "?" . getdatastr
   endif
-  let command = 'curl -0 -L -s -k -i '
+  let command = 'curl --http1.1 -L -s -k -i '
   let quote = &shellxquote == '"' ?  "'" : '"'
   for key in keys(headdata)
     if has('win32')
@@ -65,7 +65,7 @@ function! twibill#http#stream(url, ...)
   if strlen(getdatastr)
     let url .= "?" . getdatastr
   endif
-  let command = 'curl -0 -L -s -k -i '
+  let command = 'curl --http1.1 -L -s -k -i '
   let quote = &shellxquote == '"' ?  "'" : '"'
   for key in keys(headdata)
     if has('win32')
@@ -88,7 +88,7 @@ function! twibill#http#post(ctx, url, query, headdata)
   else
     let postdatastr = postdata
   endif
-  let command = 'curl -0 -L -s -k -i -X '.method
+  let command = 'curl --http1.1 -L -s -k -i -X '.method
   let quote = &shellxquote == '"' ?  "'" : '"'
   for key in keys(headdata)
     if has('win32')
