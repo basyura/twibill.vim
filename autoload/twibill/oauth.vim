@@ -88,7 +88,7 @@ function! twibill#oauth#stream(ctx, url, method, ...)
     if strlen(getdatastr)
       let url .= "?" . getdatastr
     endif
-    let command = 'curl -L -s -k -i '
+    let command = 'curl --http1.1 -L -s -k -i '
     let quote = &shellxquote == '"' ?  "'" : '"'
     for key in keys(header)
       if has('win32')
@@ -101,7 +101,7 @@ function! twibill#oauth#stream(ctx, url, method, ...)
     let file = ''
   else
     let postdatastr = twibill#http#encodeURI(query)
-    let command = 'curl -L -s -k -i -X ' . a:method
+    let command = 'curl --http1.1 -L -s -k -i -X ' . a:method
     let quote = &shellxquote == '"' ?  "'" : '"'
     for key in keys(header)
       if has('win32')
