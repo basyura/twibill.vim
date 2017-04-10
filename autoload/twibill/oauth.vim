@@ -8,6 +8,8 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
+let s:curl = 'curl -q --http1.1 -L -s -k -i '
+
 function! twibill#oauth#request_token(url, ctx, ...)
   let params = a:0 > 0 ? a:000[0] : {}
   let query = {}
@@ -88,7 +90,7 @@ function! twibill#oauth#stream(ctx, url, method, ...)
     if strlen(getdatastr)
       let url .= "?" . getdatastr
     endif
-    let command = 'curl --http1.1 -L -s -k -i '
+    let command = s:curl
     let quote = &shellxquote == '"' ?  "'" : '"'
     for key in keys(header)
       if has('win32')
@@ -101,7 +103,7 @@ function! twibill#oauth#stream(ctx, url, method, ...)
     let file = ''
   else
     let postdatastr = twibill#http#encodeURI(query)
-    let command = 'curl --http1.1 -L -s -k -i -X ' . a:method
+    let command = s:curl . '-X ' . a:method
     let quote = &shellxquote == '"' ?  "'" : '"'
     for key in keys(header)
       if has('win32')

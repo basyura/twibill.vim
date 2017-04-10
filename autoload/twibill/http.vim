@@ -7,6 +7,7 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
+let s:curl = 'curl -q --http1.1 -L -s -k -i '
 
 function! twibill#http#get(url, ...)
   let getdata = a:0 > 0 ? a:000[0] : {}
@@ -16,7 +17,7 @@ function! twibill#http#get(url, ...)
   if strlen(getdatastr)
     let url .= "?" . getdatastr
   endif
-  let command = 'curl --http1.1 -L -s -k -i '
+  let command = s:curl
   let quote = &shellxquote == '"' ?  "'" : '"'
   for key in keys(headdata)
     if has('win32')
@@ -65,7 +66,7 @@ function! twibill#http#stream(url, ...)
   if strlen(getdatastr)
     let url .= "?" . getdatastr
   endif
-  let command = 'curl --http1.1 -L -s -k -i '
+  let command = s:curl
   let quote = &shellxquote == '"' ?  "'" : '"'
   for key in keys(headdata)
     if has('win32')
@@ -88,7 +89,7 @@ function! twibill#http#post(ctx, url, query, headdata)
   else
     let postdatastr = postdata
   endif
-  let command = 'curl --http1.1 -L -s -k -i -X '.method
+  let command = s:curl . '-X ' . method
   let quote = &shellxquote == '"' ?  "'" : '"'
   for key in keys(headdata)
     if has('win32')
