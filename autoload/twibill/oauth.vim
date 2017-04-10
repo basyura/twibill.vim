@@ -8,7 +8,7 @@
 let s:save_cpo = &cpo
 set cpo&vim
 
-let s:curl = 'curl -q --http1.1 -L -s -k -i '
+let s:curl = 'curl -q --http1.1 -L -N -s -k -i '
 
 function! twibill#oauth#request_token(url, ctx, ...)
   let params = a:0 > 0 ? a:000[0] : {}
