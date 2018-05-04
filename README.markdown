@@ -14,7 +14,7 @@ License
 
 MIT License
 
-  - Original Implementation is webapi-vim (Public Domai).
+  - Original Implementation is webapi-vim (Public Domain).
   - https://github.com/mattn/webapi-vim
 
 how to use
