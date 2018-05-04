@@ -9,6 +9,14 @@ dependencies
 
   - open-browser.vim (https://github.com/tyru/open-browser.vim)
 
+License
+-------
+
+MIT License
+
+  - Original Implementation is webapi-vim (Public Domai).
+  - https://github.com/mattn/webapi-vim
+
 how to use
 ----------
 
