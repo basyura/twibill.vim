@@ -1,26 +1,40 @@
+let s:V   = vital#twibill#new()
+let s:Job = s:V.import('System.Job')
+
 "
 " 非同期でコマンドを実行
 "
 function! twibill#async#system(cmd, handler, param)
-  let cmd = a:cmd
-  let vimproc = vimproc#pgroup_open(cmd)
-  call vimproc.stdin.close()
+  if get(g:, 'twibill_use_job', 0)
+    "TODO: Use partial and closure instead of unsafe_closure when neovim supported it
+    let s:handler = a:handler
+    let s:param   = a:param
+    function! s:unsafe_closure(_, __, ___) abort
+      call s:receive_async_result(s:handler, s:param)
+      unlet s:handler s:param
+    endfunction
+    call s:Job.start(a:cmd, {'on_exit': function('s:unsafe_closure')})
+  else
+    let cmd = a:cmd
+    let vimproc = vimproc#pgroup_open(cmd)
+    call vimproc.stdin.close()
 
-    " 1つのインスタンスを使いまわしているので2回呼ばれるとアウト
-  let s:vimproc = vimproc
-  let s:result = ""
+      " 1つのインスタンスを使いまわしているので2回呼ばれるとアウト
+    let s:vimproc = vimproc
+    let s:result = ""
 
-  let param = twibill#json#encode(a:param)
+    let param = twibill#json#encode(a:param)
 
-  augroup vimproc-async-receive-test
-    execute "autocmd! CursorHold,CursorHoldI * call"
-          \ "s:receive_vimproc_result(" . string(a:handler) . "," . param . ")"
-  augroup END
+    augroup vimproc-async-receive-test
+      execute "autocmd! CursorHold,CursorHoldI * call"
+            \ "s:receive_async_result(" . string(a:handler) . "," . param . ")"
+    augroup END
+  endif
 endfunction
 "
 " コマンドの終了チェック関数
 "
-function! s:receive_vimproc_result(handler, param)
+function! s:receive_async_result(handler, param)
   if !has_key(s:, "vimproc")
     return
   endif
